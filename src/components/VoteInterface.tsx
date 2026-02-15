@@ -4,21 +4,39 @@ import { CheckCircle2 } from 'lucide-react';
 interface VoteInterfaceProps {
     question: string;
     options: { _id: string; text: string }[];
-    onVote: (optionId: string) => void;
+    onVote: (optionId: string, email: string) => void;
 }
 
 const VoteInterface: React.FC<VoteInterfaceProps> = ({ question, options, onVote }) => {
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    const [email, setEmail] = useState('');
 
     const handleSubmit = () => {
-        if (selectedOption) {
-            onVote(selectedOption);
+        if (selectedOption && email) {
+            onVote(selectedOption, email);
         }
     };
 
     return (
         <div className="subtle-card p-8 animate-fade-in">
-            <h2 className="text-2xl font-bold mb-8 text-gray-900 leading-tight">{question}</h2>
+            <h2 className="text-2xl font-bold mb-2 text-gray-900 leading-tight">{question}</h2>
+            <p className="text-sm text-gray-500 mb-8">Please enter your email to vote.</p>
+
+            <div className="mb-6">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email Address <span className="text-red-500">*</span>
+                </label>
+                <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Enter your email to vote"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+                    required
+                />
+            </div>
+
             <div className="space-y-3">
                 {options.map((option) => (
                     <div
@@ -45,7 +63,7 @@ const VoteInterface: React.FC<VoteInterfaceProps> = ({ question, options, onVote
             </div>
             <button
                 onClick={handleSubmit}
-                disabled={!selectedOption}
+                disabled={!selectedOption || !email}
                 className="btn-primary w-full mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 Submit Vote

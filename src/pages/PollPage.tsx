@@ -48,6 +48,8 @@ const PollPage: React.FC = () => {
 
             socket.on('error', (err: { message: string }) => {
                 alert(err.message);
+                setHasVoted(false);
+                localStorage.removeItem(`voted_${id}`);
             });
         }
 
@@ -59,9 +61,9 @@ const PollPage: React.FC = () => {
         };
     }, [id]);
 
-    const handleVote = (optionId: string) => {
+    const handleVote = (optionId: string, email: string) => {
         if (!id) return;
-        socket.emit('vote', { pollId: id, optionId });
+        socket.emit('vote', { pollId: id, optionId, email });
         setHasVoted(true);
         localStorage.setItem(`voted_${id}`, 'true');
     };
