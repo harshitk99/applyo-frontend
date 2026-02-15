@@ -12,8 +12,11 @@ const VoteInterface: React.FC<VoteInterfaceProps> = ({ question, options, onVote
     const [email, setEmail] = useState('');
 
     const handleSubmit = () => {
+        console.log('[VoteInterface] Submit clicked. Option:', selectedOption, 'Email:', email);
         if (selectedOption && email) {
             onVote(selectedOption, email);
+        } else {
+            console.warn('[VoteInterface] Missing fields. Option or Email not set.');
         }
     };
 

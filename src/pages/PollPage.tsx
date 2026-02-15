@@ -39,14 +39,17 @@ const PollPage: React.FC = () => {
         fetchPoll();
 
         if (id) {
+            console.log('[PollPage] Connecting to socket for poll:', id);
             socket.connect();
             socket.emit('join_poll', id);
 
             socket.on('update_poll', (updatedPoll: PollData) => {
+                console.log('[PollPage] Received update_poll:', updatedPoll);
                 setPoll(updatedPoll);
             });
 
             socket.on('error', (err: { message: string }) => {
+                console.error('[PollPage] Socket Error:', err.message);
                 alert(err.message);
                 setHasVoted(false);
                 localStorage.removeItem(`voted_${id}`);
@@ -54,6 +57,7 @@ const PollPage: React.FC = () => {
         }
 
         return () => {
+            console.log('[PollPage] Cleaning up socket listeners');
             socket.off('join_poll');
             socket.off('update_poll');
             socket.off('error');
@@ -63,6 +67,7 @@ const PollPage: React.FC = () => {
 
     const handleVote = (optionId: string, email: string) => {
         if (!id) return;
+        console.log('[PollPage] Emitting vote. Poll:', id, 'Option:', optionId, 'Email:', email);
         socket.emit('vote', { pollId: id, optionId, email });
         setHasVoted(true);
         localStorage.setItem(`voted_${id}`, 'true');
