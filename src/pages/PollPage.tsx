@@ -25,7 +25,7 @@ const PollPage: React.FC = () => {
                 const data = await getPoll(id);
                 setPoll(data);
 
-                const localVote = localStorage.getItem(`voted_${id}`);
+                const localVote = localStorage.getItem(`has_voted_${id}`);
                 if (localVote) {
                     setHasVoted(true);
                 }
@@ -50,11 +50,27 @@ const PollPage: React.FC = () => {
 
             socket.on('error', (err: { message: string }) => {
                 console.error('[PollPage] Socket Error:', err.message);
-                alert(err.message);
-                setHasVoted(false);
-                localStorage.removeItem(`voted_${id}`);
+                if (err.message === 'You have already voted with this email.') {
+                    setHasVoted(true);
+                    localStorage.setItem(`has_voted_${id}`, 'true');
+                    alert(err.message);
+                } else if (err.message === 'Already voted') {
+                    // Legacy error message handling (server should send the specific email one now)
+                    setHasVoted(true);
+                    localStorage.setItem(`has_voted_${id}`, 'true');
+                    alert("You have already voted.");
+                } else {
+                    alert(err.message);
+                    // Do NOT set hasVoted(true) for other errors so they can try again
+                }
             });
         }
+
+        // Log IP for debugging
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => console.log('Current User IP:', data.ip))
+            .catch(error => console.error('Error fetching IP:', error));
 
         return () => {
             console.log('[PollPage] Cleaning up socket listeners');
@@ -70,7 +86,7 @@ const PollPage: React.FC = () => {
         console.log('[PollPage] Emitting vote. Poll:', id, 'Option:', optionId, 'Email:', email);
         socket.emit('vote', { pollId: id, optionId, email });
         setHasVoted(true);
-        localStorage.setItem(`voted_${id}`, 'true');
+        localStorage.setItem(`has_voted_${id}`, 'true');
     };
 
     if (loading) return (

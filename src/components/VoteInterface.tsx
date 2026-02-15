@@ -11,7 +11,16 @@ const VoteInterface: React.FC<VoteInterfaceProps> = ({ question, options, onVote
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [email, setEmail] = useState('');
 
+    const validateEmail = (email: string) => {
+        const re = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+        return re.test(String(email).toLowerCase());
+    };
+
     const handleSubmit = () => {
+        if (!validateEmail(email)) {
+            alert('Please enter a valid Gmail address.');
+            return;
+        }
         console.log('[VoteInterface] Submit clicked. Option:', selectedOption, 'Email:', email);
         if (selectedOption && email) {
             onVote(selectedOption, email);
@@ -23,18 +32,18 @@ const VoteInterface: React.FC<VoteInterfaceProps> = ({ question, options, onVote
     return (
         <div className="subtle-card p-8 animate-fade-in">
             <h2 className="text-2xl font-bold mb-2 text-gray-900 leading-tight">{question}</h2>
-            <p className="text-sm text-gray-500 mb-8">Please enter your email to vote.</p>
+            <p className="text-sm text-gray-500 mb-8">Please enter your Gmail address to vote.</p>
 
             <div className="mb-6">
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address <span className="text-red-500">*</span>
+                    Gmail Address <span className="text-red-500">*</span>
                 </label>
                 <input
                     type="email"
                     id="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Enter your email to vote"
+                    placeholder="Enter your Gmail address"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
                     required
                 />
